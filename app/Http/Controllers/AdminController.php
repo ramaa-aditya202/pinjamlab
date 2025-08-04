@@ -14,8 +14,18 @@ class AdminController extends Controller
         $pendingBookings = LabBooking::where('status', 'pending')->count();
         $totalSchedules = LabSchedule::count();
         $approvedBookings = LabBooking::where('status', 'approved')->count();
+        $rejectedBookings = LabBooking::where('status', 'rejected')->count();
+        $totalFixedSchedules = LabSchedule::count(); // Same as $totalSchedules for fixed schedules
+        $recentBookings = LabBooking::with('user')->latest()->take(5)->get();
         
-        return view('admin.dashboard', compact('pendingBookings', 'totalSchedules', 'approvedBookings'));
+        return view('admin.dashboard', compact(
+            'pendingBookings', 
+            'totalSchedules', 
+            'approvedBookings', 
+            'rejectedBookings',
+            'totalFixedSchedules',
+            'recentBookings'
+        ));
     }
 
     // Kelola jadwal pakem

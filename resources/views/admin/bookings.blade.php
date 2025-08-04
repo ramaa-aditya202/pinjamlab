@@ -1,14 +1,16 @@
 @extends('layouts.app-main')
 
 @section('content')
-<div class="max-w-7xl mx-auto">
-    <div class="mb-8">
-        <h2 class="text-2xl font-bold text-gray-900">Kelola Peminjaman</h2>
-        <p class="text-gray-600">Setujui atau tolak pengajuan peminjaman lab dari guru</p>
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <!-- Header Section - Responsive -->
+    <div class="mb-6 sm:mb-8">
+        <h2 class="text-xl sm:text-2xl font-bold text-gray-900">Kelola Peminjaman</h2>
+        <p class="text-sm sm:text-base text-gray-600 mt-1">Setujui atau tolak pengajuan peminjaman lab dari guru</p>
     </div>
 
     @if($bookings->count() > 0)
-        <div class="bg-white rounded-lg shadow overflow-hidden">
+        <!-- Desktop Table View -->
+        <div class="hidden lg:block bg-white rounded-lg shadow overflow-hidden">
             <div class="overflow-x-auto">
                 <table class="min-w-full divide-y divide-gray-200">
                     <thead class="bg-gray-50">
@@ -82,15 +84,18 @@
             </div>
         </div>
 
-        <!-- Mobile View -->
-        <div class="md:hidden mt-6">
-            <div class="space-y-4">
-                @foreach($bookings as $booking)
-                    <div class="bg-white rounded-lg shadow p-4">
-                        <div class="flex items-center justify-between mb-3">
-                            <div class="text-sm font-medium text-gray-900">
+        <!-- Mobile/Tablet Card View -->
+        <div class="lg:hidden space-y-3">
+            @foreach($bookings as $booking)
+                <div class="bg-white rounded-lg shadow border border-gray-200 p-4">
+                    <div class="flex items-start justify-between mb-3">
+                        <div class="flex-1 min-w-0">
+                            <div class="text-sm font-semibold text-gray-900">
                                 {{ $booking->teacher_name }}
                             </div>
+                            <div class="text-xs text-gray-500 mt-1">{{ $booking->user->email }}</div>
+                        </div>
+                        <div class="flex-shrink-0 ml-3">
                             @if($booking->status === 'pending')
                                 <span class="px-2 py-1 text-xs font-semibold rounded-full bg-yellow-100 text-yellow-800">
                                     {{ $booking->status_name }}
@@ -105,77 +110,98 @@
                                 </span>
                             @endif
                         </div>
-                        
-                        <div class="space-y-2 text-sm text-gray-600">
-                            <div><strong>Hari & Jam:</strong> {{ $booking->day_name }}, Jam {{ $booking->hour }}</div>
-                            <div><strong>Mata Pelajaran:</strong> {{ $booking->subject }}</div>
-                            <div><strong>Kelas:</strong> {{ $booking->class }}</div>
-                            <div><strong>Tanggal Pengajuan:</strong> {{ $booking->created_at->format('d/m/Y H:i') }}</div>
-                        </div>
-                        
-                        @if($booking->status === 'pending')
-                            <div class="mt-4 flex space-x-2">
-                                <form action="{{ route('admin.bookings.approve', $booking) }}" method="POST" class="inline">
-                                    @csrf
-                                    <button type="submit" 
-                                            class="px-3 py-1 bg-green-600 text-white text-xs rounded hover:bg-green-700"
-                                            onclick="return confirm('Setujui peminjaman ini?')">
-                                        Setujui
-                                    </button>
-                                </form>
-                                
-                                <button onclick="openRejectModal({{ $booking->id }})" 
-                                        class="px-3 py-1 bg-red-600 text-white text-xs rounded hover:bg-red-700">
-                                    Tolak
-                                </button>
-                            </div>
-                        @endif
                     </div>
-                @endforeach
-            </div>
+                    
+                    <div class="grid grid-cols-2 gap-3 text-sm mb-3">
+                        <div>
+                            <span class="text-gray-500 text-xs">Hari & Jam:</span>
+                            <div class="font-medium text-gray-900">{{ $booking->day_name }}, Jam {{ $booking->hour }}</div>
+                        </div>
+                        <div>
+                            <span class="text-gray-500 text-xs">Tanggal:</span>
+                            <div class="text-gray-900">{{ $booking->created_at->format('d/m/Y') }}</div>
+                        </div>
+                    </div>
+                    
+                    <div class="space-y-2 text-sm mb-4">
+                        <div class="flex">
+                            <span class="text-gray-500 w-20 flex-shrink-0 text-xs">Mapel:</span>
+                            <span class="text-gray-900 font-medium">{{ $booking->subject }}</span>
+                        </div>
+                        <div class="flex">
+                            <span class="text-gray-500 w-20 flex-shrink-0 text-xs">Kelas:</span>
+                            <span class="text-gray-900">{{ $booking->class }}</span>
+                        </div>
+                    </div>
+                    
+                    @if($booking->status === 'pending')
+                        <div class="pt-3 border-t border-gray-200 flex space-x-2">
+                            <form action="{{ route('admin.bookings.approve', $booking) }}" method="POST" class="flex-1">
+                                @csrf
+                                <button type="submit" 
+                                        class="w-full px-3 py-2 bg-green-600 text-white text-xs font-medium rounded hover:bg-green-700 transition-colors"
+                                        onclick="return confirm('Setujui peminjaman ini?')">
+                                    Setujui
+                                </button>
+                            </form>
+                            
+                            <button onclick="openRejectModal({{ $booking->id }})" 
+                                    class="flex-1 px-3 py-2 bg-red-600 text-white text-xs font-medium rounded hover:bg-red-700 transition-colors">
+                                Tolak
+                            </button>
+                        </div>
+                    @else
+                        <div class="pt-3 border-t border-gray-200 text-center">
+                            <span class="text-gray-400 text-xs">Peminjaman sudah diproses</span>
+                        </div>
+                    @endif
+                </div>
+            @endforeach
         </div>
     @else
-        <div class="bg-white rounded-lg shadow p-8 text-center">
-            <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <div class="bg-white rounded-lg shadow p-6 sm:p-8 text-center">
+            <svg class="mx-auto h-10 w-10 sm:h-12 sm:w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path>
             </svg>
-            <h3 class="mt-4 text-lg font-medium text-gray-900">Belum Ada Peminjaman</h3>
-            <p class="mt-2 text-sm text-gray-600">
+            <h3 class="mt-4 text-base sm:text-lg font-medium text-gray-900">Belum Ada Peminjaman</h3>
+            <p class="mt-2 text-sm sm:text-base text-gray-600">
                 Belum ada pengajuan peminjaman dari guru yang perlu diproses.
             </p>
         </div>
     @endif
 </div>
 
-<!-- Reject Modal -->
-<div id="rejectModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full hidden z-50">
-    <div class="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white">
-        <div class="mt-3">
-            <h3 class="text-lg font-medium text-gray-900 mb-4">Tolak Peminjaman</h3>
-            <form id="rejectForm" method="POST">
-                @csrf
-                <div class="mb-4">
-                    <label for="notes" class="block text-sm font-medium text-gray-700 mb-2">
-                        Alasan Penolakan
-                    </label>
-                    <textarea name="notes" 
-                              id="notes" 
-                              rows="3" 
-                              class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
-                              placeholder="Masukkan alasan penolakan (opsional)"></textarea>
-                </div>
-                <div class="flex items-center justify-end space-x-3">
-                    <button type="button" 
-                            onclick="closeRejectModal()"
-                            class="px-4 py-2 bg-gray-300 text-gray-700 rounded-md hover:bg-gray-400">
-                        Batal
-                    </button>
-                    <button type="submit" 
-                            class="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700">
-                        Tolak Peminjaman
-                    </button>
-                </div>
-            </form>
+<!-- Reject Modal - Responsive -->
+<div id="rejectModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full hidden z-50 p-4">
+    <div class="relative min-h-screen flex items-center justify-center">
+        <div class="relative bg-white rounded-lg shadow-lg w-full max-w-md mx-auto">
+            <div class="p-6">
+                <h3 class="text-lg font-medium text-gray-900 mb-4">Tolak Peminjaman</h3>
+                <form id="rejectForm" method="POST">
+                    @csrf
+                    <div class="mb-4">
+                        <label for="notes" class="block text-sm font-medium text-gray-700 mb-2">
+                            Alasan Penolakan
+                        </label>
+                        <textarea name="notes" 
+                                  id="notes" 
+                                  rows="3" 
+                                  class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 text-sm"
+                                  placeholder="Masukkan alasan penolakan (opsional)"></textarea>
+                    </div>
+                    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-end space-y-2 sm:space-y-0 sm:space-x-3">
+                        <button type="button" 
+                                onclick="closeRejectModal()"
+                                class="w-full sm:w-auto px-4 py-2 bg-gray-300 text-gray-700 rounded-md hover:bg-gray-400 text-sm font-medium">
+                            Batal
+                        </button>
+                        <button type="submit" 
+                                class="w-full sm:w-auto px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 text-sm font-medium">
+                            Tolak Peminjaman
+                        </button>
+                    </div>
+                </form>
+            </div>
         </div>
     </div>
 </div>
