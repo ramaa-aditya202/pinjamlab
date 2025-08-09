@@ -2,7 +2,9 @@
 
 namespace App\Providers;
 
+use App\Socialite\SsoProvider;
 use Illuminate\Support\ServiceProvider;
+use Laravel\Socialite\Contracts\Factory;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -19,6 +21,12 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        //
+        // Register custom SSO OAuth2 provider
+        $socialite = $this->app->make(Factory::class);
+        
+        $socialite->extend('sso', function ($app) use ($socialite) {
+            $config = $app['config']['services.sso'];
+            return $socialite->buildProvider(SsoProvider::class, $config);
+        });
     }
 }

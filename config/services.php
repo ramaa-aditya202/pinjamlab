@@ -1,7 +1,6 @@
 <?php
 
 return [
-
     /*
     |--------------------------------------------------------------------------
     | Third Party Services
@@ -35,4 +34,11 @@ return [
         ],
     ],
 
+    // SSO OAuth2 Configuration
+    'sso' => [
+        'client_id' => env('SSO_CLIENT_ID'),
+        'client_secret' => env('SSO_CLIENT_SECRET'),
+        'redirect' => env('SSO_REDIRECT_URI'),
+        'base_url' => env('SSO_BASE_URL', 'https://sso.domain.sch.id'),
+    ],
 ];
