@@ -34,11 +34,14 @@ return [
         ],
     ],
 
-    // SSO OAuth2 Configuration
-    'sso' => [
-        'client_id' => env('SSO_CLIENT_ID'),
-        'client_secret' => env('SSO_CLIENT_SECRET'),
-        'redirect' => env('SSO_REDIRECT_URI'),
-        'base_url' => env('SSO_BASE_URL', 'https://sso.domain.sch.id'),
+    // Generic OAuth2 Configuration
+    'oauth2' => [
+        'client_id' => env('OAUTH2_CLIENT_ID'),
+        'client_secret' => env('OAUTH2_CLIENT_SECRET'),
+        'redirect' => env('OAUTH2_REDIRECT_URI'),
+        'authorize_url' => env('OAUTH2_AUTHORIZE_URL', 'https://sso.maallathifahcikbar.sch.id/oauth/authorize'),
+        'token_url' => env('OAUTH2_TOKEN_URL', 'https://sso.maallathifahcikbar.sch.id/oauth/token'),
+        'user_url' => env('OAUTH2_USER_URL', 'https://sso.maallathifahcikbar.sch.id/api/user'),
     ],
+
 ];

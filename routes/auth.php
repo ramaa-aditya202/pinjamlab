@@ -9,7 +9,7 @@ use App\Http\Controllers\Auth\PasswordController;
 use App\Http\Controllers\Auth\PasswordResetLinkController;
 use App\Http\Controllers\Auth\RegisteredUserController;
 use App\Http\Controllers\Auth\VerifyEmailController;
-use App\Http\Controllers\Auth\SsoController;
+use App\Http\Controllers\Auth\OAuth2Controller;
 use Illuminate\Support\Facades\Route;
 
 Route::middleware('guest')->group(function () {
@@ -23,9 +23,9 @@ Route::middleware('guest')->group(function () {
 
     Route::post('login', [AuthenticatedSessionController::class, 'store']);
 
-    // SSO OAuth2 Routes
-    Route::get('auth/sso', [SsoController::class, 'redirect'])->name('auth.sso');
-    Route::get('auth/sso/callback', [SsoController::class, 'callback'])->name('auth.sso.callback');
+    // OAuth2 SSO Routes (Updated)
+    Route::get('auth/oauth2', [OAuth2Controller::class, 'redirect'])->name('auth.oauth2');
+    Route::get('auth/oauth2/callback', [OAuth2Controller::class, 'callback'])->name('auth.oauth2.callback');
 
     Route::get('forgot-password', [PasswordResetLinkController::class, 'create'])
         ->name('password.request');
