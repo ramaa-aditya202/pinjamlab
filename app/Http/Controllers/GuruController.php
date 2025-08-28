@@ -153,15 +153,15 @@ class GuruController extends Controller
                 'subject' => $booking->subject,
                 'status' => $booking->status,
                 'created_at' => $booking->created_at->format('Y-m-d H:i:s'),
-                'message' => "📝 *Pengajuan Peminjaman Lab Baru*\n\n" .
-                            "👤 *Pengaju:* {$user->name}\n" .
-                            "📧 *Email:* {$user->email}\n" .
-                            "📅 *Hari:* " . ($dayNames[$booking->day] ?? $booking->day) . "\n" .
-                            "🕐 *Jam:* Jam ke-{$booking->hour}\n" .
-                            "👨‍🏫 *Guru:* {$booking->teacher_name}\n" .
-                            "🏫 *Kelas:* {$booking->class}\n" .
-                            "📚 *Mata Pelajaran:* {$booking->subject}\n" .
-                            "⏰ *Waktu Pengajuan:* " . $booking->created_at->format('d/m/Y H:i') . "\n\n" .
+                'message' => "📝 PENGAJUAN PEMINJAMAN LAB BARU\n\n" .
+                            "👤 Pengaju: {$user->name}\n" .
+                            "📧 Email: {$user->email}\n" .
+                            "📅 Hari: " . ($dayNames[$booking->day] ?? $booking->day) . "\n" .
+                            "🕐 Jam: Jam ke-{$booking->hour}\n" .
+                            "👨‍🏫 Guru: {$booking->teacher_name}\n" .
+                            "🏫 Kelas: {$booking->class}\n" .
+                            "📚 Mata Pelajaran: {$booking->subject}\n" .
+                            "⏰ Waktu Pengajuan: " . $booking->created_at->format('d/m/Y H:i') . "\n\n" .
                             "Silakan cek dashboard admin untuk menyetujui atau menolak pengajuan ini."
             ];
 

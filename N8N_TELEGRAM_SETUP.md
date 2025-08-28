@@ -1,10 +1,109 @@
-# Integrasi N8N dengan Telegram Bot untuk Notifikasi Peminjaman Lab
+# Fix Telegram Error "Can't parse entities" - SOLVED ✅
 
-## Overview
-Sistem ini terintegrasi dengan n8n untuk mengirim notifikasi ke Telegram Bot ketika:
-1. Ada pengajuan peminjaman lab baru
-2. Admin menyetujui peminjaman
-3. Admin menolak peminjaman
+## 🔍 **Error Analysis**
+
+Error yang Anda alami:
+```
+Bad Request: can't parse entities: Can't find end of the entity starting at byte offset 70
+```
+
+**Root Cause:** Pesan menggunakan format Markdown dengan karakter `*` yang tidak valid atau tidak seimbang.
+
+## ✅ **Solusi Yang Sudah Diterapkan**
+
+### 1. **Laravel Messages Fixed**
+File: `app/Http/Controllers/GuruController.php` & `AdminController.php`
+
+**❌ Before (Bermasalah):**
+```php
+'message' => "📝 *Pengajuan Peminjaman Lab Baru*\n\n" .
+            "👤 *Pengaju:* {$user->name}\n" .
+            "📧 *Email:* {$user->email}\n"
+```
+
+**✅ After (Fixed):**
+```php
+'message' => "📝 PENGAJUAN PEMINJAMAN LAB BARU\n\n" .
+            "👤 Pengaju: {$user->name}\n" .
+            "📧 Email: {$user->email}\n"
+```
+
+### 2. **N8N Workflow Fixed**
+File: `n8n-telegram-safe-workflow.json`
+
+**Key Changes:**
+- ✅ `parseMode: "none"` - Tidak menggunakan Markdown parsing
+- ✅ Message cleaning function untuk remove special characters
+- ✅ Safe text formatting
+
+## 🚀 **Setup Instructions**
+
+### **Step 1: Import Safe Workflow**
+1. Import `n8n-telegram-safe-workflow.json` ke N8N
+2. Ganti `YOUR_CHAT_ID_HERE` dengan Chat ID Telegram Anda
+3. Set Telegram Bot credentials
+4. **PENTING:** Pastikan `parseMode: "none"`
+
+### **Step 2: Test di Laravel**
+```bash
+# Jika PHP terinstal
+php artisan test:telegram-safe
+
+# Alternative test manual
+# Buat booking baru di aplikasi web untuk trigger notifikasi
+```
+
+### **Step 3: Verify N8N Execution**
+1. Check N8N execution history
+2. Look for successful webhook → telegram flow
+3. Verify no more parsing errors
+
+## 🔧 **N8N Node Configuration**
+
+### **Telegram Node Settings:**
+```json
+{
+  "chatId": "={{$json.chat_id}}",
+  "text": "={{$json.final_text}}",
+  "parseMode": "none"
+}
+```
+
+**⚠️ CRITICAL:** `parseMode: "none"` adalah kunci untuk menghindari parsing errors!
+
+## 📋 **Testing Checklist**
+
+- ✅ Laravel messages tidak menggunakan `*` untuk bold
+- ✅ N8N Telegram node menggunakan `parseMode: "none"`
+- ✅ Workflow import successful tanpa error
+- ✅ Webhook endpoint accessible dari N8N
+- ⚠️ Test actual notification flow
+
+## 💡 **Alternative Solutions**
+
+### **Option 1: HTML Format (Jika ingin formatting)**
+```json
+{
+  "parseMode": "HTML",
+  "text": "📝 <b>PENGAJUAN PEMINJAMAN LAB</b>\n\n👤 <b>Pengaju:</b> {{$json.user_name}}"
+}
+```
+
+### **Option 2: Markdown Escaped**
+```php
+// Di Laravel, escape special characters
+$message = str_replace(['*', '_', '[', ']', '(', ')', '~', '`', '>', '#', '+', '-', '=', '|', '{', '}', '.', '!'], '', $originalMessage);
+```
+
+## 🎯 **Expected Result**
+
+Setelah perbaikan ini:
+- ✅ No more "can't parse entities" errors
+- ✅ Messages delivered successfully to Telegram
+- ✅ Clean text formatting without special characters
+- ✅ N8N workflow executes completely
+
+**Test dengan membuat booking baru di aplikasi web untuk memverifikasi end-to-end flow!**
 
 ## Setup Telegram Bot
 

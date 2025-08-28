@@ -1,0 +1,107 @@
+{
+  "name": "Lab Booking Simple",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "booking-notification",
+        "responseMode": "responseNode"
+      },
+      "id": "webhook",
+      "name": "Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [220, 300]
+    },
+    {
+      "parameters": {
+        "values": {
+          "string": [
+            {
+              "name": "message",
+              "value": "={{ $json.message }}"
+            },
+            {
+              "name": "event_type",
+              "value": "={{ $json.event_type }}"
+            },
+            {
+              "name": "chat_id",
+              "value": "YOUR_CHAT_ID_HERE"
+            }
+          ]
+        }
+      },
+      "id": "set_data",
+      "name": "Set Data",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 1,
+      "position": [400, 300]
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $json.chat_id }}",
+        "text": "🔔 **Lab Booking Notification**\n\n{{ $json.message }}\n\n📋 Event: `{{ $json.event_type }}`",
+        "parseMode": "Markdown"
+      },
+      "id": "telegram_bot",
+      "name": "Telegram Bot",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1,
+      "position": [580, 300],
+      "credentials": {
+        "telegramApi": "YOUR_TELEGRAM_BOT_CREDENTIAL"
+      }
+    },
+    {
+      "parameters": {
+        "statusCode": 200,
+        "body": "={\"success\": true, \"event_type\": \"{{ $json.event_type }}\", \"timestamp\": \"{{ new Date().toISOString() }}\"}"
+      },
+      "id": "respond_to_webhook",
+      "name": "Respond to Webhook",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1,
+      "position": [760, 300]
+    }
+  ],
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Set Data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Set Data": {
+      "main": [
+        [
+          {
+            "node": "Telegram Bot",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Telegram Bot": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "timezone": "Asia/Jakarta"
+  }
+}

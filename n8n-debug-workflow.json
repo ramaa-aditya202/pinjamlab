@@ -1,0 +1,120 @@
+{
+  "name": "Lab Booking Debug Workflow",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "booking-notification",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "id": "webhook-trigger",
+      "name": "Webhook Trigger",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [240, 300],
+      "credentials": {}
+    },
+    {
+      "parameters": {
+        "values": {
+          "string": [
+            {
+              "name": "debug_event_type",
+              "value": "={{ $json.event_type }}"
+            },
+            {
+              "name": "debug_full_json",
+              "value": "={{ JSON.stringify($json, null, 2) }}"
+            },
+            {
+              "name": "telegram_message",
+              "value": "🔍 *DEBUG N8N*\n\n📊 Event Type: {{ $json.event_type }}\n📝 Message:\n{{ $json.message || 'No message' }}\n\n📋 Full Data:\n```\n{{ JSON.stringify($json, null, 2) }}\n```"
+            },
+            {
+              "name": "chat_id",
+              "value": "YOUR_TELEGRAM_CHAT_ID"
+            }
+          ]
+        }
+      },
+      "id": "debug-set",
+      "name": "Debug Set",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 1,
+      "position": [460, 300]
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $json.chat_id }}",
+        "text": "={{ $json.telegram_message }}",
+        "parseMode": "Markdown"
+      },
+      "id": "telegram-debug",
+      "name": "Telegram Debug",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1,
+      "position": [680, 300],
+      "credentials": {
+        "telegramApi": {
+          "id": "YOUR_TELEGRAM_CREDENTIALS_ID",
+          "name": "Telegram API"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "statusCode": 200,
+        "body": {
+          "success": true,
+          "message": "Debug data received and sent to Telegram",
+          "received_event_type": "={{ $json.debug_event_type }}"
+        }
+      },
+      "id": "response-debug",
+      "name": "Response Debug",
+      "type": "n8n-nodes-base.respond",
+      "typeVersion": 1,
+      "position": [900, 300]
+    }
+  ],
+  "connections": {
+    "Webhook Trigger": {
+      "main": [
+        [
+          {
+            "node": "Debug Set",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Debug Set": {
+      "main": [
+        [
+          {
+            "node": "Telegram Debug",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Telegram Debug": {
+      "main": [
+        [
+          {
+            "node": "Response Debug",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "timezone": "Asia/Jakarta"
+  }
+}

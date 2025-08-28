@@ -85,6 +85,11 @@ Pilih salah satu opsi:
 2. Buat workflow baru
 3. Klik **Import** dan upload file `n8n-lab-booking-workflow.json`
 
+### 3.2 Manual Setup (jika import bermasalah)
+Jika setelah import Switch node tidak bekerja dengan benar:
+- Lihat panduan lengkap di: [N8N_MANUAL_SETUP.md](N8N_MANUAL_SETUP.md)
+- Setup Switch node secara manual dengan konfigurasi yang tepat
+
 ### 3.2 Konfigurasi Credentials
 1. Klik node **Telegram** manapun
 2. Buat credentials baru:
@@ -140,7 +145,29 @@ Expected output:
 ✅ Test notification berhasil dikirim!
 ```
 
-### 5.2 Test Webhook di N8N
+### 5.2 Debug N8N Execution
+Jika N8N tidak melanjutkan dari Switch node:
+
+1. **Import Debug Workflow**:
+   - Import file `n8n-debug-workflow.json`
+   - Konfigurasi Telegram credentials dan Chat ID
+   - Aktifkan workflow ini sementara
+
+2. **Test dengan Debug Workflow**:
+   ```bash
+   php artisan test:booking-notification
+   ```
+   
+3. **Check Telegram untuk Debug Info**:
+   - Pesan debug akan menampilkan semua data yang diterima
+   - Verify `event_type` field ada dan benar
+   
+4. **Fix Main Workflow**:
+   - Kembali ke main workflow
+   - Update Switch conditions berdasarkan data debug
+   - Pastikan `event_type` matching persis
+
+### 5.3 Manual Switch Debugging
 1. Buka workflow di N8N
 2. Klik **Execute Workflow** 
 3. Pilih **Via Webhook**

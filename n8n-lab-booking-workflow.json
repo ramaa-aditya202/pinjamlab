@@ -5,8 +5,7 @@
       "parameters": {
         "httpMethod": "POST",
         "path": "booking-notification",
-        "responseMode": "responseNode",
-        "options": {}
+        "responseMode": "responseNode"
       },
       "id": "webhook-trigger",
       "name": "Webhook Trigger",
@@ -15,48 +14,25 @@
       "position": [
         240,
         300
-      ],
-      "credentials": {}
+      ]
     },
     {
       "parameters": {
+        "dataType": "string",
+        "value1": "={{ $json.event_type }}",
         "rules": {
           "rules": [
             {
-              "conditions": [
-                {
-                  "leftValue": "={{ $json.event_type }}",
-                  "rightValue": "booking_created",
-                  "operator": {
-                    "type": "string",
-                    "operation": "equals"
-                  }
-                }
-              ]
+              "value2": "booking_created",
+              "output": 0
             },
             {
-              "conditions": [
-                {
-                  "leftValue": "={{ $json.event_type }}",
-                  "rightValue": "booking_status_updated",
-                  "operator": {
-                    "type": "string",
-                    "operation": "equals"
-                  }
-                }
-              ]
+              "value2": "booking_status_updated", 
+              "output": 1
             },
             {
-              "conditions": [
-                {
-                  "leftValue": "={{ $json.event_type }}",
-                  "rightValue": "test_notification",
-                  "operator": {
-                    "type": "string",
-                    "operation": "equals"
-                  }
-                }
-              ]
+              "value2": "test_notification",
+              "output": 2
             }
           ]
         }
@@ -64,7 +40,7 @@
       "id": "switch-event-type",
       "name": "Switch Event Type",
       "type": "n8n-nodes-base.switch",
-      "typeVersion": 1,
+      "typeVersion": 3,
       "position": [
         460,
         300
@@ -272,7 +248,8 @@
             "type": "main",
             "index": 0
           }
-        ]
+        ],
+        []
       ]
     },
     "Set New Booking Data": {

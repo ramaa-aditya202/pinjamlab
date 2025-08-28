@@ -262,20 +262,20 @@ class AdminController extends Controller
             $statusIcon = $status === 'approved' ? '✅' : '❌';
             $statusText = $status === 'approved' ? 'DISETUJUI' : 'DITOLAK';
             
-            $message = "{$statusIcon} *Peminjaman Lab {$statusText}*\n\n" .
-                      "👤 *Pengaju:* {$booking->user->name}\n" .
-                      "📧 *Email:* {$booking->user->email}\n" .
-                      "📅 *Hari:* " . ($dayNames[$booking->day] ?? $booking->day) . "\n" .
-                      "🕐 *Jam:* Jam ke-{$booking->hour}\n" .
-                      "👨‍🏫 *Guru:* {$booking->teacher_name}\n" .
-                      "🏫 *Kelas:* {$booking->class}\n" .
-                      "📚 *Mata Pelajaran:* {$booking->subject}\n";
+            $message = "{$statusIcon} PEMINJAMAN LAB {$statusText}\n\n" .
+                      "👤 Pengaju: {$booking->user->name}\n" .
+                      "📧 Email: {$booking->user->email}\n" .
+                      "📅 Hari: " . ($dayNames[$booking->day] ?? $booking->day) . "\n" .
+                      "🕐 Jam: Jam ke-{$booking->hour}\n" .
+                      "👨‍🏫 Guru: {$booking->teacher_name}\n" .
+                      "🏫 Kelas: {$booking->class}\n" .
+                      "📚 Mata Pelajaran: {$booking->subject}\n";
             
             if ($notes && $status === 'rejected') {
-                $message .= "📝 *Alasan:* {$notes}\n";
+                $message .= "📝 Alasan: {$notes}\n";
             }
             
-            $message .= "⏰ *Diproses pada:* " . now()->format('d/m/Y H:i');
+            $message .= "⏰ Diproses pada: " . now()->format('d/m/Y H:i');
 
             $notificationData = [
                 'event_type' => 'booking_status_updated',

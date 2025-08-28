@@ -112,6 +112,7 @@ php artisan view:clear
 # Test notifications
 php artisan test:booking-notification
 php artisan test:webhook-direct
+php artisan test:n8n-switch booking_created
 
 # Cleanup tools
 php artisan cleanup:rejected-bookings --dry-run

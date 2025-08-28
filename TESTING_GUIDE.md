@@ -55,6 +55,17 @@ php artisan test:booking-notification
 php artisan test:webhook-direct
 ```
 
+### Test N8N Switch Node (debug specific event_type)
+```bash
+# Test default booking_created
+php artisan test:n8n-switch
+
+# Test specific event types
+php artisan test:n8n-switch booking_created
+php artisan test:n8n-switch booking_status_updated  
+php artisan test:n8n-switch test_notification
+```
+
 ### Alternative Test (jika ada masalah CSRF)
 ```bash
 # Test langsung ke webhook tanpa Laravel route
@@ -198,6 +209,57 @@ Sistem sekarang sudah diperbaiki untuk:
 - Menghapus unique constraint pada level database
 - Memperbaiki validasi aplikasi untuk hanya mengecek status `pending` dan `approved`
 - Memungkinkan pengajuan ulang pada slot yang sebelumnya ditolak
+
+### Issue: N8N Switch Event Type tidak melanjutkan ke node berikutnya
+**Symptoms:** N8N menerima webhook dan mencapai Switch node, tapi execution berhenti di sana
+
+**Root Cause:** 
+Kondisi di Switch node tidak match dengan `event_type` yang dikirim dari Laravel.
+
+**Debug Steps:**
+1. **Check nilai event_type**: Pastikan Laravel mengirim `event_type` yang benar
+2. **Verify Switch conditions**: Pastikan kondisi di Switch node sesuai
+
+**Solution:**
+
+#### 1. Fix Switch Node Conditions di N8N
+Buka Switch node dan pastikan conditions seperti ini:
+
+**Output 0 (New Booking):**
+- Condition: `{{ $json.event_type }}` equals `booking_created`
+
+**Output 1 (Status Update):**  
+- Condition: `{{ $json.event_type }}` equals `booking_status_updated`
+
+**Output 2 (Test):**
+- Condition: `{{ $json.event_type }}` equals `test_notification`
+
+#### 2. Alternative: Use Contains Instead of Equals
+Jika masih tidak work, coba gunakan "contains" instead of "equals":
+- `{{ $json.event_type }}` contains `booking_created`
+
+#### 3. Debug dengan Expression di N8N
+Tambahkan node "Set" sebelum Switch untuk debug:
+```javascript
+// Di Set node, tambahkan:
+{
+  "debug_event_type": "{{ $json.event_type }}",
+  "debug_full_data": "{{ JSON.stringify($json) }}"
+}
+```
+
+#### 4. Manual Test di N8N
+1. Buka workflow di N8N
+2. Klik **Execute Workflow** 
+3. Pilih **Via Webhook**
+4. Paste data ini untuk test:
+```json
+{
+  "event_type": "booking_created",
+  "message": "Test message",
+  "booking_id": 123
+}
+```
 
 ### Issue: Format pesan rusak
 **Solution:**

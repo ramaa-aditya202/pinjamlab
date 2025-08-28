@@ -1,0 +1,94 @@
+{
+  "name": "Lab Booking Fixed",
+  "nodes": [
+    {
+      "parameters": {
+        "path": "booking-notification",
+        "httpMethod": "POST"
+      },
+      "name": "Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [
+        220,
+        300
+      ],
+      "id": "webhook-node"
+    },
+    {
+      "parameters": {
+        "values": {
+          "string": [
+            {
+              "name": "clean_message",
+              "value": "={{$json.message.replace(/[_*\\[\\]()~`>#+=|{}.!-]/g, '')}}"
+            },
+            {
+              "name": "event_type", 
+              "value": "={{$json.event_type}}"
+            },
+            {
+              "name": "chat_id",
+              "value": "YOUR_CHAT_ID_HERE"
+            },
+            {
+              "name": "final_text",
+              "value": "Lab Booking Notification\n\n{{$json.clean_message}}\n\nEvent: {{$json.event_type}}\nTime: {{new Date().toLocaleString('id-ID', {timeZone: 'Asia/Jakarta'})}}"
+            }
+          ]
+        }
+      },
+      "name": "Clean Message",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 1,
+      "position": [
+        380,
+        300
+      ],
+      "id": "clean-message-node"
+    },
+    {
+      "parameters": {
+        "chatId": "={{$json.chat_id}}",
+        "text": "={{$json.final_text}}",
+        "parseMode": "none"
+      },
+      "name": "Telegram Safe",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1,
+      "position": [
+        540,
+        300
+      ],
+      "id": "telegram-safe-node",
+      "credentials": {
+        "telegramApi": "telegram_bot_credentials"
+      }
+    }
+  ],
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Clean Message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Clean Message": {
+      "main": [
+        [
+          {
+            "node": "Telegram Safe",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true
+}
