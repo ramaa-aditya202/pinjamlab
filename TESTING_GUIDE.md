@@ -170,6 +170,35 @@ php artisan serve
 2. Check bot permissions di group/channel
 3. Verify chat ID dengan: `https://api.telegram.org/bot<TOKEN>/getUpdates`
 
+### Issue: UniqueConstraintViolationException - Duplicate entry for day-hour
+**Symptoms:** Error saat mengajukan peminjaman pada slot yang sebelumnya pernah ditolak
+
+**Error Message:**
+```
+SQLSTATE[23000]: Integrity constraint violation: 1062 Duplicate entry 'selasa-1' for key 'lab_bookings_day_hour_unique'
+```
+
+**Root Cause:** 
+Database memiliki unique constraint pada kombinasi `day` dan `hour` yang mencegah pengajuan ulang pada slot yang sama, meskipun peminjaman sebelumnya sudah ditolak.
+
+**Solution:**
+```bash
+# 1. Run migration untuk menghapus unique constraint
+php artisan migrate
+
+# 2. Atau manual fix di database (MySQL/MariaDB)
+# ALTER TABLE lab_bookings DROP INDEX lab_bookings_day_hour_unique;
+
+# 3. Validasi sekarang hanya mengecek status 'pending' dan 'approved'
+#    Peminjaman yang 'rejected' tidak akan memblokir pengajuan baru
+```
+
+**Prevention:** 
+Sistem sekarang sudah diperbaiki untuk:
+- Menghapus unique constraint pada level database
+- Memperbaiki validasi aplikasi untuk hanya mengecek status `pending` dan `approved`
+- Memungkinkan pengajuan ulang pada slot yang sebelumnya ditolak
+
 ### Issue: Format pesan rusak
 **Solution:**
 1. Test dengan plain text dulu (hapus parse_mode)

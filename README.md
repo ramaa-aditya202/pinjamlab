@@ -111,6 +111,11 @@ php artisan view:clear
 
 # Test notifications
 php artisan test:booking-notification
+php artisan test:webhook-direct
+
+# Cleanup tools
+php artisan cleanup:rejected-bookings --dry-run
+php artisan cleanup:rejected-bookings
 
 # Monitor logs
 tail -f storage/logs/laravel.log

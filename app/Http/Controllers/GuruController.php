@@ -19,8 +19,8 @@ class GuruController extends Controller
         // Ambil jadwal pakem
         $fixedSchedules = LabSchedule::where('is_fixed', true)->get();
         
-        // Ambil peminjaman yang sudah disetujui
-        $approvedBookings = LabBooking::where('status', 'approved')->get();
+        // Ambil peminjaman yang sudah disetujui atau masih pending (bukan yang sudah ditolak)
+        $approvedBookings = LabBooking::whereIn('status', ['approved', 'pending'])->get();
         
         // Gabungkan data untuk ditampilkan dalam tabel
         $scheduleData = [];
@@ -30,8 +30,11 @@ class GuruController extends Controller
                 // Cek apakah ada jadwal pakem
                 $fixedSchedule = $fixedSchedules->where('day', $day)->where('hour', $hour)->first();
                 
-                // Cek apakah ada peminjaman yang disetujui
-                $approvedBooking = $approvedBookings->where('day', $day)->where('hour', $hour)->first();
+                // Cek apakah ada peminjaman yang disetujui atau pending
+                $approvedBooking = $approvedBookings->where('day', $day)
+                                                   ->where('hour', $hour)
+                                                   ->whereIn('status', ['approved', 'pending'])
+                                                   ->first();
                 
                 if ($fixedSchedule) {
                     $scheduleData[$day][$hour] = [
@@ -66,7 +69,10 @@ class GuruController extends Controller
         
         // Validasi apakah slot tersedia
         $isFixed = LabSchedule::where('day', $day)->where('hour', $hour)->where('is_fixed', true)->exists();
-        $isBooked = LabBooking::where('day', $day)->where('hour', $hour)->whereIn('status', ['pending', 'approved'])->exists();
+        $isBooked = LabBooking::where('day', $day)
+                            ->where('hour', $hour)
+                            ->whereIn('status', ['pending', 'approved']) // Hanya cek pending dan approved
+                            ->exists();
         
         if ($isFixed || $isBooked) {
             return redirect()->route('guru.dashboard')->with('error', 'Slot jadwal tidak tersedia');
@@ -88,7 +94,10 @@ class GuruController extends Controller
 
         // Cek lagi apakah slot masih tersedia
         $isFixed = LabSchedule::where('day', $request->day)->where('hour', $request->hour)->where('is_fixed', true)->exists();
-        $isBooked = LabBooking::where('day', $request->day)->where('hour', $request->hour)->whereIn('status', ['pending', 'approved'])->exists();
+        $isBooked = LabBooking::where('day', $request->day)
+                            ->where('hour', $request->hour)
+                            ->whereIn('status', ['pending', 'approved']) // Hanya cek pending dan approved, bukan rejected
+                            ->exists();
         
         if ($isFixed || $isBooked) {
             return redirect()->route('guru.dashboard')->with('error', 'Slot jadwal tidak tersedia');

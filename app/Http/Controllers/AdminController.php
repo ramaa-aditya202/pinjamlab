@@ -68,16 +68,16 @@ class AdminController extends Controller
                            ->with('error', 'Sudah ada jadwal pakem pada hari dan jam tersebut');
         }
 
-        // Cek apakah sudah ada peminjaman yang disetujui pada hari dan jam yang sama
+        // Cek apakah sudah ada peminjaman yang disetujui atau pending pada hari dan jam yang sama
         $existingBooking = LabBooking::where('day', $request->day)
                                     ->where('hour', $request->hour)
-                                    ->where('status', 'approved')
+                                    ->whereIn('status', ['approved', 'pending'])
                                     ->first();
         
         if ($existingBooking) {
             return redirect()->back()
                            ->withInput()
-                           ->with('error', 'Sudah ada peminjaman yang disetujui pada hari dan jam tersebut');
+                           ->with('error', 'Sudah ada peminjaman yang disetujui atau pending pada hari dan jam tersebut');
         }
 
         LabSchedule::create($request->all());
@@ -119,16 +119,16 @@ class AdminController extends Controller
                            ->with('error', 'Sudah ada jadwal pakem lain pada hari dan jam tersebut');
         }
 
-        // Cek apakah sudah ada peminjaman yang disetujui pada hari dan jam yang sama
+        // Cek apakah sudah ada peminjaman yang disetujui atau pending pada hari dan jam yang sama
         $existingBooking = LabBooking::where('day', $request->day)
                                     ->where('hour', $request->hour)
-                                    ->where('status', 'approved')
+                                    ->whereIn('status', ['approved', 'pending'])
                                     ->first();
         
         if ($existingBooking) {
             return redirect()->back()
                            ->withInput()
-                           ->with('error', 'Sudah ada peminjaman yang disetujui pada hari dan jam tersebut');
+                           ->with('error', 'Sudah ada peminjaman yang disetujui atau pending pada hari dan jam tersebut');
         }
 
         $schedule->update($request->all());
@@ -195,8 +195,8 @@ class AdminController extends Controller
         // Ambil jadwal pakem
         $fixedSchedules = LabSchedule::where('is_fixed', true)->get();
         
-        // Ambil peminjaman yang sudah disetujui
-        $approvedBookings = LabBooking::where('status', 'approved')->get();
+        // Ambil peminjaman yang sudah disetujui atau pending (tidak termasuk rejected)
+        $approvedBookings = LabBooking::whereIn('status', ['approved', 'pending'])->get();
         
         // Gabungkan data untuk ditampilkan dalam tabel
         $scheduleData = [];

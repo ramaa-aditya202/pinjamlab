@@ -252,3 +252,58 @@ Dengan setup monitoring external pada log files.
 ---
 
 **💡 Tip**: Selalu test secara bertahap - Laravel → N8N → Telegram - untuk isolasi masalah dengan cepat.
+
+---
+
+## 🗄️ Database Constraint Issues
+
+### Gejala:
+```
+UniqueConstraintViolationException
+SQLSTATE[23000]: Integrity constraint violation: 1062 
+Duplicate entry 'selasa-1' for key 'lab_bookings_day_hour_unique'
+```
+
+### Penyebab:
+Database memiliki unique constraint pada kombinasi `day` dan `hour` yang mencegah pengajuan ulang pada slot yang sebelumnya pernah ditolak.
+
+### Solusi:
+
+#### 1. Run Migration (Recommended)
+```bash
+# Migration akan menghapus unique constraint
+php artisan migrate
+
+# Verifikasi migration berhasil
+php artisan migrate:status
+```
+
+#### 2. Manual Database Fix (Emergency)
+```sql
+-- Untuk MySQL/MariaDB
+ALTER TABLE lab_bookings DROP INDEX lab_bookings_day_hour_unique;
+
+-- Untuk SQLite (drop dan recreate table tanpa constraint)
+-- Lebih kompleks, gunakan migration saja
+```
+
+#### 3. Cleanup Data Lama (Optional)
+```bash
+# Lihat data rejected yang mungkin menyebabkan masalah
+php artisan cleanup:rejected-bookings --dry-run
+
+# Hapus data rejected (opsional)
+php artisan cleanup:rejected-bookings
+```
+
+#### 4. Verifikasi Fix
+```bash
+# Test pengajuan ulang pada slot yang sebelumnya ditolak
+# Seharusnya sekarang berhasil tanpa error constraint
+```
+
+### Prevention:
+- ✅ Unique constraint dihapus dari database
+- ✅ Validasi aplikasi diperbaiki hanya cek status `pending` dan `approved`
+- ✅ Peminjaman yang `rejected` tidak memblokir pengajuan baru
+- ✅ Data integrity tetap terjaga melalui aplikasi logic
