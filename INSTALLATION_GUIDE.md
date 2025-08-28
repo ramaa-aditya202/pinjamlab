@@ -118,6 +118,13 @@ N8N_WEBHOOK_URL=https://n8n.yourdomain.com/webhook/booking-notification
 ```bash
 php artisan config:clear
 php artisan config:cache
+php artisan route:clear
+```
+
+### 4.3 Verify webhook route
+```bash
+php artisan route:list | grep webhook
+# Should show: POST webhook/n8n/booking-notification
 ```
 
 ## 🧪 Step 5: Testing

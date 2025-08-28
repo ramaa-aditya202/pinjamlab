@@ -11,7 +11,9 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware): void {
-        //
+        $middleware->validateCsrfTokens(except: [
+            'webhook/n8n/booking-notification',
+        ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         //

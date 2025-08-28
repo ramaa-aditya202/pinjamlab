@@ -26,6 +26,17 @@ class TestBookingNotification extends Command
      */
     public function handle()
     {
+        $this->info('🔧 Checking configuration...');
+        
+        $webhookUrl = config('services.n8n.webhook_url');
+        if (!$webhookUrl) {
+            $this->error('❌ N8N_WEBHOOK_URL tidak dikonfigurasi di .env');
+            $this->line('   Tambahkan: N8N_WEBHOOK_URL=https://your-n8n-instance.com/webhook/booking-notification');
+            return 1;
+        }
+        
+        $this->info("🔗 Webhook URL: {$webhookUrl}");
+
         $testData = [
             'event_type' => 'test_notification',
             'booking_id' => 999,
@@ -57,14 +68,29 @@ class TestBookingNotification extends Command
             
             if ($response->successful()) {
                 $this->info('✅ Test notification berhasil dikirim!');
-                $this->info('📝 Data yang dikirim:');
-                $this->line(json_encode($testData, JSON_PRETTY_PRINT));
+                $this->line('� Response Status: ' . $response->status());
+                $this->line('📝 Response Body: ' . $response->body());
             } else {
                 $this->error('❌ Gagal mengirim test notification: ' . $response->status());
-                $this->error('Response: ' . $response->body());
+                $this->error('📝 Response: ' . $response->body());
+                
+                if ($response->status() === 419) {
+                    $this->line('');
+                    $this->warn('💡 Tips untuk Error 419:');
+                    $this->line('   1. Pastikan webhook dikecualikan dari CSRF');
+                    $this->line('   2. Jalankan: php artisan config:clear');
+                    $this->line('   3. Restart server: php artisan serve');
+                }
             }
         } catch (\Exception $e) {
             $this->error('❌ Error: ' . $e->getMessage());
+            $this->line('');
+            $this->warn('💡 Possible issues:');
+            $this->line('   1. N8N webhook URL tidak dapat diakses');
+            $this->line('   2. Network connectivity problem');
+            $this->line('   3. Laravel route tidak terdaftar');
         }
+        
+        return 0;
     }
 }

@@ -50,6 +50,22 @@ curl -X POST https://api.telegram.org/bot<BOT_TOKEN>/sendMessage \
 php artisan test:booking-notification
 ```
 
+### Test Direct ke N8N (bypass Laravel route)
+```bash
+php artisan test:webhook-direct
+```
+
+### Alternative Test (jika ada masalah CSRF)
+```bash
+# Test langsung ke webhook tanpa Laravel route
+curl -X POST http://localhost:8000/webhook/n8n/booking-notification \
+-H "Content-Type: application/json" \
+-d '{
+  "event_type": "test_notification",
+  "message": "🧪 Test dari curl direct"
+}'
+```
+
 ### Check Routes
 ```bash
 php artisan route:list | grep webhook
@@ -92,6 +108,47 @@ tail -f storage/logs/laravel.log
 - [ ] Parse mode "Markdown" atau "HTML" sesuai format pesan
 
 ## Common Issues & Solutions
+
+### Issue: Error 419 "Page Expired" (CSRF Token)
+**Symptoms:** Test command mengembalikan error 419 dengan HTML response "Page Expired"
+
+**Solution:**
+```bash
+# 1. Pastikan webhook dikecualikan dari CSRF verification
+#    File sudah dikonfigurasi di bootstrap/app.php untuk mengecualikan:
+#    'webhook/n8n/booking-notification'
+
+# 2. Clear semua cache
+php artisan config:clear
+php artisan route:clear
+php artisan cache:clear
+
+# 3. Restart Laravel server
+php artisan serve
+
+# 4. Test alternatif (direct ke N8N)
+php artisan test:webhook-direct
+```
+
+**Root Cause:** Laravel secara default melindungi semua POST requests dengan CSRF token, termasuk webhook endpoints.
+
+### Issue: Connection Timeout atau Network Error
+**Symptoms:** cURL error, connection refused, timeout
+
+**Solution:**
+```bash
+# 1. Test koneksi manual
+ping your-n8n-domain.com
+
+# 2. Test dengan wget/curl
+wget -qO- https://your-n8n-instance.com/webhook/booking-notification
+
+# 3. Check firewall rules
+# 4. Verify N8N is running and accessible
+
+# 5. Test dengan local N8N (jika applicable)
+N8N_WEBHOOK_URL=http://localhost:5678/webhook/booking-notification
+```
 
 ### Issue: Webhook 404 Not Found
 **Solution:** 
