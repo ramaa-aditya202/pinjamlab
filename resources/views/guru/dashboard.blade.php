@@ -58,12 +58,19 @@
                                             <div class="text-red-600 text-xs">{{ $slot['teacher'] }}</div>
                                             <div class="text-red-500 text-xs mt-1">Jadwal Pakem</div>
                                         </div>
-                                    @elseif($slot['type'] === 'booked')
+                                    @elseif($slot['type'] === 'approved')
                                         <div class="bg-yellow-100 border border-yellow-300 rounded-lg p-3">
                                             <div class="text-yellow-800 font-medium">{{ $slot['subject'] }}</div>
                                             <div class="text-yellow-600 text-xs">{{ $slot['class'] }}</div>
                                             <div class="text-yellow-600 text-xs">{{ $slot['teacher'] }}</div>
                                             <div class="text-yellow-500 text-xs mt-1">Sudah Dipinjam</div>
+                                        </div>
+                                    @elseif($slot['type'] === 'pending')
+                                        <div class="bg-orange-100 border border-orange-300 rounded-lg p-3">
+                                            <div class="text-orange-800 font-medium">{{ $slot['subject'] }}</div>
+                                            <div class="text-orange-600 text-xs">{{ $slot['class'] }}</div>
+                                            <div class="text-orange-600 text-xs">{{ $slot['teacher'] }}</div>
+                                            <div class="text-orange-500 text-xs mt-1">Menunggu Persetujuan</div>
                                         </div>
                                     @else
                                         <div class="bg-green-100 border border-green-300 rounded-lg p-3">
@@ -117,11 +124,17 @@
                                                 <div class="text-red-600 text-xs">{{ $slot['class'] }}</div>
                                                 <div class="text-red-500 text-xs">Pakem</div>
                                             </div>
-                                        @elseif($slot['type'] === 'booked')
+                                        @elseif($slot['type'] === 'approved')
                                             <div class="bg-yellow-100 border border-yellow-300 rounded p-2">
                                                 <div class="text-yellow-800 font-medium text-xs">{{ substr($slot['subject'], 0, 12) }}{{ strlen($slot['subject']) > 12 ? '...' : '' }}</div>
                                                 <div class="text-yellow-600 text-xs">{{ $slot['class'] }}</div>
                                                 <div class="text-yellow-500 text-xs">Dipinjam</div>
+                                            </div>
+                                        @elseif($slot['type'] === 'pending')
+                                            <div class="bg-orange-100 border border-orange-300 rounded p-2">
+                                                <div class="text-orange-800 font-medium text-xs">{{ substr($slot['subject'], 0, 12) }}{{ strlen($slot['subject']) > 12 ? '...' : '' }}</div>
+                                                <div class="text-orange-600 text-xs">{{ $slot['class'] }}</div>
+                                                <div class="text-orange-500 text-xs">Pending</div>
                                             </div>
                                         @else
                                             <div class="bg-green-100 border border-green-300 rounded p-2">
@@ -175,7 +188,7 @@
                                             </div>
                                             <div class="text-red-500 text-xs mt-1 text-center bg-red-100 rounded px-1">Pakem</div>
                                         </div>
-                                    @elseif($slot['type'] === 'booked')
+                                    @elseif($slot['type'] === 'approved')
                                         <div class="bg-yellow-50 border border-yellow-200 rounded p-2 flex-1 flex flex-col justify-between">
                                             <div>
                                                 <div class="text-yellow-800 font-medium text-xs mb-1 leading-tight">
@@ -184,6 +197,16 @@
                                                 <div class="text-yellow-600 text-xs">{{ $slot['class'] }}</div>
                                             </div>
                                             <div class="text-yellow-500 text-xs mt-1 text-center bg-yellow-100 rounded px-1">Dipinjam</div>
+                                        </div>
+                                    @elseif($slot['type'] === 'pending')
+                                        <div class="bg-orange-50 border border-orange-200 rounded p-2 flex-1 flex flex-col justify-between">
+                                            <div>
+                                                <div class="text-orange-800 font-medium text-xs mb-1 leading-tight">
+                                                    {{ strlen($slot['subject']) > 10 ? substr($slot['subject'], 0, 10) . '...' : $slot['subject'] }}
+                                                </div>
+                                                <div class="text-orange-600 text-xs">{{ $slot['class'] }}</div>
+                                            </div>
+                                            <div class="text-orange-500 text-xs mt-1 text-center bg-orange-100 rounded px-1">Pending</div>
                                         </div>
                                     @else
                                         <div class="bg-green-50 border border-green-200 rounded p-2 flex-1 flex flex-col justify-between">

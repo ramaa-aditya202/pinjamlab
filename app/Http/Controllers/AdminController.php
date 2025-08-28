@@ -195,8 +195,9 @@ class AdminController extends Controller
         // Ambil jadwal pakem
         $fixedSchedules = LabSchedule::where('is_fixed', true)->get();
         
-        // Ambil peminjaman yang sudah disetujui atau pending (tidak termasuk rejected)
-        $approvedBookings = LabBooking::whereIn('status', ['approved', 'pending'])->get();
+        // Ambil peminjaman yang sudah disetujui dan yang masih pending terpisah
+        $approvedBookings = LabBooking::where('status', 'approved')->get();
+        $pendingBookings = LabBooking::where('status', 'pending')->get();
         
         // Gabungkan data untuk ditampilkan dalam tabel
         $scheduleData = [];
@@ -206,8 +207,11 @@ class AdminController extends Controller
                 // Cek apakah ada jadwal pakem
                 $fixedSchedule = $fixedSchedules->where('day', $day)->where('hour', $hour)->first();
                 
-                // Cek apakah ada peminjaman yang disetujui
+                // Cek apakah ada peminjaman yang sudah disetujui
                 $approvedBooking = $approvedBookings->where('day', $day)->where('hour', $hour)->first();
+                
+                // Cek apakah ada peminjaman yang masih pending
+                $pendingBooking = $pendingBookings->where('day', $day)->where('hour', $hour)->first();
                 
                 if ($fixedSchedule) {
                     $scheduleData[$day][$hour] = [
@@ -220,11 +224,20 @@ class AdminController extends Controller
                     ];
                 } elseif ($approvedBooking) {
                     $scheduleData[$day][$hour] = [
-                        'type' => 'booked',
+                        'type' => 'approved',
                         'subject' => $approvedBooking->subject,
                         'class' => $approvedBooking->class,
                         'teacher' => $approvedBooking->teacher_name,
                         'id' => $approvedBooking->id,
+                        'model' => 'booking'
+                    ];
+                } elseif ($pendingBooking) {
+                    $scheduleData[$day][$hour] = [
+                        'type' => 'pending',
+                        'subject' => $pendingBooking->subject,
+                        'class' => $pendingBooking->class,
+                        'teacher' => $pendingBooking->teacher_name,
+                        'id' => $pendingBooking->id,
                         'model' => 'booking'
                     ];
                 } else {
