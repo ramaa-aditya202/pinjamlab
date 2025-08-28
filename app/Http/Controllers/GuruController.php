@@ -3,6 +3,8 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Log;
 use App\Models\LabSchedule;
 use App\Models\LabBooking;
 
@@ -92,7 +94,7 @@ class GuruController extends Controller
             return redirect()->route('guru.dashboard')->with('error', 'Slot jadwal tidak tersedia');
         }
 
-        LabBooking::create([
+        $booking = LabBooking::create([
             'user_id' => auth()->id(),
             'day' => $request->day,
             'hour' => $request->hour,
@@ -102,6 +104,9 @@ class GuruController extends Controller
             'status' => 'pending'
         ]);
 
+        // Kirim notifikasi ke n8n
+        $this->sendBookingNotification($booking);
+
         return redirect()->route('guru.dashboard')->with('success', 'Pengajuan peminjaman berhasil disubmit');
     }
 
@@ -110,5 +115,53 @@ class GuruController extends Controller
     {
         $bookings = LabBooking::where('user_id', auth()->id())->orderBy('created_at', 'desc')->get();
         return view('guru.my-bookings', compact('bookings'));
+    }
+
+    /**
+     * Kirim notifikasi peminjaman ke n8n
+     */
+    private function sendBookingNotification($booking)
+    {
+        try {
+            $user = auth()->user();
+            $dayNames = [
+                'senin' => 'Senin',
+                'selasa' => 'Selasa', 
+                'rabu' => 'Rabu',
+                'kamis' => 'Kamis',
+                'jumat' => 'Jumat'
+            ];
+
+            $notificationData = [
+                'event_type' => 'booking_created',
+                'booking_id' => $booking->id,
+                'user_name' => $user->name,
+                'user_email' => $user->email,
+                'day' => $dayNames[$booking->day] ?? $booking->day,
+                'hour' => $booking->hour,
+                'teacher_name' => $booking->teacher_name,
+                'class' => $booking->class,
+                'subject' => $booking->subject,
+                'status' => $booking->status,
+                'created_at' => $booking->created_at->format('Y-m-d H:i:s'),
+                'message' => "📝 *Pengajuan Peminjaman Lab Baru*\n\n" .
+                            "👤 *Pengaju:* {$user->name}\n" .
+                            "📧 *Email:* {$user->email}\n" .
+                            "📅 *Hari:* " . ($dayNames[$booking->day] ?? $booking->day) . "\n" .
+                            "🕐 *Jam:* Jam ke-{$booking->hour}\n" .
+                            "👨‍🏫 *Guru:* {$booking->teacher_name}\n" .
+                            "🏫 *Kelas:* {$booking->class}\n" .
+                            "📚 *Mata Pelajaran:* {$booking->subject}\n" .
+                            "⏰ *Waktu Pengajuan:* " . $booking->created_at->format('d/m/Y H:i') . "\n\n" .
+                            "Silakan cek dashboard admin untuk menyetujui atau menolak pengajuan ini."
+            ];
+
+            // Kirim ke internal webhook
+            Http::timeout(5)->post(route('webhook.booking.notification'), $notificationData);
+
+        } catch (\Exception $e) {
+            Log::error('Failed to send booking notification: ' . $e->getMessage());
+            // Jangan gagalkan proses utama jika notifikasi gagal
+        }
     }
 }

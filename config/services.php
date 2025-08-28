@@ -44,4 +44,9 @@ return [
         'user_url' => env('OAUTH2_USER_URL', 'https://sso.maallathifahcikbar.sch.id/api/user'),
     ],
 
+    // N8N Configuration
+    'n8n' => [
+        'webhook_url' => env('N8N_WEBHOOK_URL'),
+    ],
+
 ];

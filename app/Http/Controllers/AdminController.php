@@ -3,6 +3,8 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Log;
 use App\Models\LabSchedule;
 use App\Models\LabBooking;
 
@@ -163,6 +165,10 @@ class AdminController extends Controller
     public function approveBooking(LabBooking $booking)
     {
         $booking->update(['status' => 'approved']);
+        
+        // Kirim notifikasi approval
+        $this->sendStatusNotification($booking, 'approved');
+        
         return redirect()->route('admin.bookings')->with('success', 'Peminjaman berhasil disetujui');
     }
 
@@ -173,6 +179,10 @@ class AdminController extends Controller
             'status' => 'rejected',
             'notes' => $request->notes
         ]);
+        
+        // Kirim notifikasi rejection
+        $this->sendStatusNotification($booking, 'rejected', $request->notes);
+        
         return redirect()->route('admin.bookings')->with('success', 'Peminjaman berhasil ditolak');
     }
 
@@ -233,5 +243,60 @@ class AdminController extends Controller
     {
         $booking->delete();
         return redirect()->route('admin.lab-schedule')->with('success', 'Peminjaman berhasil dibatalkan');
+    }
+
+    /**
+     * Kirim notifikasi status update ke n8n
+     */
+    private function sendStatusNotification($booking, $status, $notes = null)
+    {
+        try {
+            $dayNames = [
+                'senin' => 'Senin',
+                'selasa' => 'Selasa', 
+                'rabu' => 'Rabu',
+                'kamis' => 'Kamis',
+                'jumat' => 'Jumat'
+            ];
+
+            $statusIcon = $status === 'approved' ? '✅' : '❌';
+            $statusText = $status === 'approved' ? 'DISETUJUI' : 'DITOLAK';
+            
+            $message = "{$statusIcon} *Peminjaman Lab {$statusText}*\n\n" .
+                      "👤 *Pengaju:* {$booking->user->name}\n" .
+                      "📧 *Email:* {$booking->user->email}\n" .
+                      "📅 *Hari:* " . ($dayNames[$booking->day] ?? $booking->day) . "\n" .
+                      "🕐 *Jam:* Jam ke-{$booking->hour}\n" .
+                      "👨‍🏫 *Guru:* {$booking->teacher_name}\n" .
+                      "🏫 *Kelas:* {$booking->class}\n" .
+                      "📚 *Mata Pelajaran:* {$booking->subject}\n";
+            
+            if ($notes && $status === 'rejected') {
+                $message .= "📝 *Alasan:* {$notes}\n";
+            }
+            
+            $message .= "⏰ *Diproses pada:* " . now()->format('d/m/Y H:i');
+
+            $notificationData = [
+                'event_type' => 'booking_status_updated',
+                'booking_id' => $booking->id,
+                'status' => $status,
+                'user_name' => $booking->user->name,
+                'user_email' => $booking->user->email,
+                'day' => $dayNames[$booking->day] ?? $booking->day,
+                'hour' => $booking->hour,
+                'teacher_name' => $booking->teacher_name,
+                'class' => $booking->class,
+                'subject' => $booking->subject,
+                'notes' => $notes,
+                'processed_at' => now()->format('Y-m-d H:i:s'),
+                'message' => $message
+            ];
+
+            Http::timeout(5)->post(route('webhook.booking.notification'), $notificationData);
+
+        } catch (\Exception $e) {
+            Log::error('Failed to send status notification: ' . $e->getMessage());
+        }
     }
 }

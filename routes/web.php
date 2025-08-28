@@ -3,11 +3,16 @@
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\GuruController;
+use App\Http\Controllers\WebhookController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
     return view('welcome');
 });
+
+// Webhook route untuk n8n (tidak perlu auth)
+Route::post('/webhook/n8n/booking-notification', [WebhookController::class, 'bookingNotification'])
+    ->name('webhook.booking.notification');
 
 Route::get('/dashboard', function () {
     // Redirect berdasarkan role user
