@@ -28,11 +28,7 @@ class WebhookController extends Controller
             ]);
 
             // Kirim data ke n8n
-            $response = Http::timeout(10)->post($n8nWebhookUrl, [
-                'event' => 'booking_notification',
-                'data' => $requestData,
-                ...$requestData // Merge data langsung ke root level
-            ]);
+            $response = Http::timeout(10)->post($n8nWebhookUrl, $requestData);
 
             if ($response->successful()) {
                 Log::info('Booking notification sent to n8n successfully', [

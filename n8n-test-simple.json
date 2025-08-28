@@ -1,5 +1,5 @@
 {
-  "name": "Lab Booking Fixed",
+  "name": "Lab Simple Test",
   "nodes": [
     {
       "parameters": {
@@ -9,28 +9,22 @@
       "name": "Webhook",
       "type": "n8n-nodes-base.webhook",
       "typeVersion": 1,
-      "position": [
-        220,
-        300
-      ],
-      "id": "webhook-node"
+      "position": [220, 300],
+      "id": "webhook"
     },
     {
       "parameters": {
         "chatId": "YOUR_CHAT_ID_HERE",
-        "text": "={{$json.message}}",
+        "text": "=✅ Data received!\n\nEvent: {{$json.event_type}}\nUser: {{$json.user_name}}\nMessage length: {{$json.message?.length || 0}} chars\n\nFirst 200 chars:\n{{$json.message?.substring(0, 200) || 'No message'}}",
         "parseMode": "none"
       },
-      "name": "Telegram Safe",
-      "type": "n8n-nodes-base.telegram",
+      "name": "Debug Telegram",
+      "type": "n8n-nodes-base.telegram", 
       "typeVersion": 1,
-      "position": [
-        540,
-        300
-      ],
-      "id": "telegram-safe-node",
+      "position": [400, 300],
+      "id": "telegram",
       "credentials": {
-        "telegramApi": "telegram_bot_credentials"
+        "telegramApi": "telegram_credentials"
       }
     }
   ],
@@ -39,7 +33,7 @@
       "main": [
         [
           {
-            "node": "Telegram Safe",
+            "node": "Debug Telegram",
             "type": "main",
             "index": 0
           }
