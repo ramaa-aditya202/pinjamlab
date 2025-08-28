@@ -59,11 +59,11 @@
                                 <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
                                     @if($booking->status === 'pending')
                                         <div class="flex space-x-2">
-                                            <form action="{{ route('admin.bookings.approve', $booking) }}" method="POST" class="inline">
+                                            <form action="{{ route('admin.bookings.approve', $booking) }}" method="POST" data-ajax="true" class="inline">
                                                 @csrf
                                                 <button type="submit" 
-                                                        class="text-green-600 hover:text-green-900 text-xs px-2 py-1 bg-green-100 rounded hover:bg-green-200"
-                                                        onclick="return confirm('Setujui peminjaman ini?')">
+                                                        data-confirm="Setujui peminjaman ini?"
+                                                        class="text-green-600 hover:text-green-900 text-xs px-2 py-1 bg-green-100 rounded hover:bg-green-200">
                                                     Setujui
                                                 </button>
                                             </form>
@@ -136,11 +136,11 @@
                     
                     @if($booking->status === 'pending')
                         <div class="pt-3 border-t border-gray-200 flex space-x-2">
-                            <form action="{{ route('admin.bookings.approve', $booking) }}" method="POST" class="flex-1">
+                            <form action="{{ route('admin.bookings.approve', $booking) }}" method="POST" data-ajax="true" class="flex-1">
                                 @csrf
                                 <button type="submit" 
-                                        class="w-full px-3 py-2 bg-green-600 text-white text-xs font-medium rounded hover:bg-green-700 transition-colors"
-                                        onclick="return confirm('Setujui peminjaman ini?')">
+                                        data-confirm="Setujui peminjaman ini?"
+                                        class="w-full px-3 py-2 bg-green-600 text-white text-xs font-medium rounded hover:bg-green-700 transition-colors">
                                     Setujui
                                 </button>
                             </form>
@@ -177,7 +177,7 @@
         <div class="relative bg-white rounded-lg shadow-lg w-full max-w-md mx-auto">
             <div class="p-6">
                 <h3 class="text-lg font-medium text-gray-900 mb-4">Tolak Peminjaman</h3>
-                <form id="rejectForm" method="POST">
+                <form id="rejectForm" method="POST" data-modal="true">
                     @csrf
                     <div class="mb-4">
                         <label for="notes" class="block text-sm font-medium text-gray-700 mb-2">

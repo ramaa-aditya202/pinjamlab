@@ -24,6 +24,14 @@ class PasswordController extends Controller
             'password' => Hash::make($validated['password']),
         ]);
 
+        if ($request->expectsJson() || $request->ajax()) {
+            return response()->json([
+                'success' => true,
+                'message' => 'Password updated successfully',
+                'reload' => true
+            ]);
+        }
+
         return back()->with('status', 'password-updated');
     }
 }

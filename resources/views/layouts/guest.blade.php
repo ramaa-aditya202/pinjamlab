@@ -13,6 +13,20 @@
 
         <!-- Scripts -->
         @vite(['resources/css/app.css', 'resources/js/app.js'])
+        
+        <!-- Fallback AJAX Handler (if Vite fails) -->
+        <script>
+            document.addEventListener('DOMContentLoaded', function() {
+                setTimeout(function() {
+                    if (typeof setupAjaxHandlers === 'undefined') {
+                        console.log('Loading fallback AJAX handler...');
+                        const script = document.createElement('script');
+                        script.src = '{{ asset('js/ajax-handler.js') }}';
+                        document.head.appendChild(script);
+                    }
+                }, 100);
+            });
+        </script>
     </head>
     <body class="font-sans text-gray-900 antialiased">
         <div class="min-h-screen flex flex-col sm:justify-center items-center pt-6 sm:pt-0 bg-gray-100">

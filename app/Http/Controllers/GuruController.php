@@ -108,6 +108,12 @@ class GuruController extends Controller
                             ->exists();
         
         if ($isFixed || $isBooked) {
+            if ($request->expectsJson() || $request->ajax()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Slot jadwal tidak tersedia'
+                ], 422);
+            }
             return redirect()->route('guru.dashboard')->with('error', 'Slot jadwal tidak tersedia');
         }
 
@@ -123,6 +129,14 @@ class GuruController extends Controller
 
         // Kirim notifikasi ke n8n
         $this->sendBookingNotification($booking);
+
+        if ($request->expectsJson() || $request->ajax()) {
+            return response()->json([
+                'success' => true,
+                'message' => 'Pengajuan peminjaman berhasil disubmit',
+                'redirect' => route('guru.dashboard')
+            ]);
+        }
 
         return redirect()->route('guru.dashboard')->with('success', 'Pengajuan peminjaman berhasil disubmit');
     }

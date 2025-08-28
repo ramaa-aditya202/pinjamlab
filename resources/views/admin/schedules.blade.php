@@ -115,12 +115,12 @@
                            class="flex-1 text-center px-3 py-2 bg-indigo-600 text-white text-xs font-medium rounded hover:bg-indigo-700 transition-colors">
                             Edit
                         </a>
-                        <form action="{{ route('admin.schedules.destroy', $schedule) }}" method="POST" class="flex-1">
+                        <form action="{{ route('admin.schedules.destroy', $schedule) }}" method="POST" data-delete="true" class="flex-1">
                             @csrf
                             @method('DELETE')
                             <button type="submit" 
-                                    class="w-full px-3 py-2 bg-red-600 text-white text-xs font-medium rounded hover:bg-red-700 transition-colors"
-                                    onclick="return confirm('Hapus jadwal pakem ini?')">
+                                    data-confirm="Hapus jadwal pakem ini?"
+                                    class="w-full px-3 py-2 bg-red-600 text-white text-xs font-medium rounded hover:bg-red-700 transition-colors">
                                 Hapus
                             </button>
                         </form>

@@ -22,7 +22,7 @@
 
     <!-- Form -->
     <div class="bg-white rounded-lg shadow p-4 md:p-6">
-        <form action="{{ route('guru.booking.store') }}" method="POST" class="space-y-4 md:space-y-6">
+        <form action="{{ route('guru.booking.store') }}" method="POST" data-ajax="true" class="space-y-4 md:space-y-6">
             @csrf
             
             <input type="hidden" name="day" value="{{ $day }}">

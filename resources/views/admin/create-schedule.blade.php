@@ -9,7 +9,7 @@
     </div>
 
     <div class="bg-white rounded-lg shadow p-4 sm:p-6">
-        <form action="{{ route('admin.schedules.store') }}" method="POST" class="space-y-4 sm:space-y-6">
+        <form action="{{ route('admin.schedules.store') }}" method="POST" data-ajax="true" class="space-y-4 sm:space-y-6">
             @csrf
 
             <!-- Hidden field to track source -->

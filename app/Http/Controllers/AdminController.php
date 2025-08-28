@@ -49,13 +49,24 @@ class AdminController extends Controller
     // Simpan jadwal pakem
     public function storeSchedule(Request $request)
     {
-        $request->validate([
-            'day' => 'required|in:senin,selasa,rabu,kamis,jumat',
-            'hour' => 'required|integer|min:1|max:9',
-            'subject' => 'required|string|max:255',
-            'class' => 'required|string|max:255',
-            'teacher' => 'required|string|max:255',
-        ]);
+        try {
+            $request->validate([
+                'day' => 'required|in:senin,selasa,rabu,kamis,jumat',
+                'hour' => 'required|integer|min:1|max:9',
+                'subject' => 'required|string|max:255',
+                'class' => 'required|string|max:255',
+                'teacher' => 'required|string|max:255',
+            ]);
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            if ($request->expectsJson() || $request->ajax()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Validation failed',
+                    'errors' => $e->errors()
+                ], 422);
+            }
+            throw $e;
+        }
 
         // Cek apakah sudah ada jadwal pada hari dan jam yang sama
         $existingSchedule = LabSchedule::where('day', $request->day)
@@ -63,6 +74,12 @@ class AdminController extends Controller
                                       ->first();
         
         if ($existingSchedule) {
+            if ($request->expectsJson() || $request->ajax()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Sudah ada jadwal pakem pada hari dan jam tersebut'
+                ], 422);
+            }
             return redirect()->back()
                            ->withInput()
                            ->with('error', 'Sudah ada jadwal pakem pada hari dan jam tersebut');
@@ -75,12 +92,30 @@ class AdminController extends Controller
                                     ->first();
         
         if ($existingBooking) {
+            if ($request->expectsJson() || $request->ajax()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Sudah ada peminjaman yang disetujui atau pending pada hari dan jam tersebut'
+                ], 422);
+            }
             return redirect()->back()
                            ->withInput()
                            ->with('error', 'Sudah ada peminjaman yang disetujui atau pending pada hari dan jam tersebut');
         }
 
         LabSchedule::create($request->all());
+
+        if ($request->expectsJson() || $request->ajax()) {
+            $redirectUrl = $request->filled('from_lab_schedule') 
+                ? route('admin.lab-schedule') 
+                : route('admin.schedules');
+            
+            return response()->json([
+                'success' => true,
+                'message' => 'Jadwal pakem berhasil ditambahkan',
+                'redirect' => $redirectUrl
+            ]);
+        }
 
         // Redirect ke jadwal lab jika datang dari sana, atau ke schedules jika dari menu biasa
         if ($request->filled('from_lab_schedule')) {
@@ -114,6 +149,12 @@ class AdminController extends Controller
                                       ->first();
         
         if ($existingSchedule) {
+            if ($request->expectsJson() || $request->ajax()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Sudah ada jadwal pakem lain pada hari dan jam tersebut'
+                ], 422);
+            }
             return redirect()->back()
                            ->withInput()
                            ->with('error', 'Sudah ada jadwal pakem lain pada hari dan jam tersebut');
@@ -126,12 +167,30 @@ class AdminController extends Controller
                                     ->first();
         
         if ($existingBooking) {
+            if ($request->expectsJson() || $request->ajax()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Sudah ada peminjaman yang disetujui atau pending pada hari dan jam tersebut'
+                ], 422);
+            }
             return redirect()->back()
                            ->withInput()
                            ->with('error', 'Sudah ada peminjaman yang disetujui atau pending pada hari dan jam tersebut');
         }
 
         $schedule->update($request->all());
+
+        if ($request->expectsJson() || $request->ajax()) {
+            $redirectUrl = $request->filled('from_lab_schedule') 
+                ? route('admin.lab-schedule') 
+                : route('admin.schedules');
+            
+            return response()->json([
+                'success' => true,
+                'message' => 'Jadwal pakem berhasil diperbarui',
+                'redirect' => $redirectUrl
+            ]);
+        }
 
         // Redirect ke jadwal lab jika datang dari sana, atau ke schedules jika dari menu biasa
         if ($request->filled('from_lab_schedule')) {
@@ -145,6 +204,18 @@ class AdminController extends Controller
     public function destroySchedule(LabSchedule $schedule)
     {
         $schedule->delete();
+        
+        if (request()->expectsJson() || request()->ajax()) {
+            $redirectUrl = request()->has('from_lab_schedule') 
+                ? route('admin.lab-schedule') 
+                : route('admin.schedules');
+            
+            return response()->json([
+                'success' => true,
+                'message' => 'Jadwal pakem berhasil dihapus',
+                'redirect' => $redirectUrl
+            ]);
+        }
         
         // Redirect ke jadwal lab jika ada parameter from_lab_schedule
         if (request()->has('from_lab_schedule')) {
@@ -169,6 +240,14 @@ class AdminController extends Controller
         // Kirim notifikasi approval
         $this->sendStatusNotification($booking, 'approved');
         
+        if (request()->expectsJson() || request()->ajax()) {
+            return response()->json([
+                'success' => true,
+                'message' => 'Peminjaman berhasil disetujui',
+                'reload' => true
+            ]);
+        }
+        
         return redirect()->route('admin.bookings')->with('success', 'Peminjaman berhasil disetujui');
     }
 
@@ -182,6 +261,14 @@ class AdminController extends Controller
         
         // Kirim notifikasi rejection
         $this->sendStatusNotification($booking, 'rejected', $request->notes);
+        
+        if ($request->expectsJson() || $request->ajax()) {
+            return response()->json([
+                'success' => true,
+                'message' => 'Peminjaman berhasil ditolak',
+                'reload' => true
+            ]);
+        }
         
         return redirect()->route('admin.bookings')->with('success', 'Peminjaman berhasil ditolak');
     }
@@ -255,6 +342,15 @@ class AdminController extends Controller
     public function cancelBooking(LabBooking $booking)
     {
         $booking->delete();
+        
+        if (request()->expectsJson() || request()->ajax()) {
+            return response()->json([
+                'success' => true,
+                'message' => 'Peminjaman berhasil dibatalkan',
+                'reload' => true
+            ]);
+        }
+        
         return redirect()->route('admin.lab-schedule')->with('success', 'Peminjaman berhasil dibatalkan');
     }
 

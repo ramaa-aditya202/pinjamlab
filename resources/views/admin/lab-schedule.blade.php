@@ -73,12 +73,12 @@
                                                    class="bg-blue-500 hover:bg-blue-600 text-white px-2 py-1 rounded text-xs">
                                                     Edit
                                                 </a>
-                                                <form action="{{ route('admin.schedules.destroy', $slot['id']) }}?from_lab_schedule=1" method="POST" class="inline">
+                                                <form action="{{ route('admin.schedules.destroy', $slot['id']) }}?from_lab_schedule=1" method="POST" data-delete="true" class="inline">
                                                     @csrf
                                                     @method('DELETE')
                                                     <button type="submit" 
-                                                            class="bg-red-500 hover:bg-red-600 text-white px-2 py-1 rounded text-xs"
-                                                            onclick="return confirm('Hapus jadwal pakem ini?')">
+                                                            data-confirm="Hapus jadwal pakem ini?"
+                                                            class="bg-red-500 hover:bg-red-600 text-white px-2 py-1 rounded text-xs">
                                                         Hapus
                                                     </button>
                                                 </form>
@@ -93,12 +93,12 @@
                                             
                                             <!-- Mobile cancel button -->
                                             <div class="mt-2">
-                                                <form action="{{ route('admin.bookings.cancel', $slot['id']) }}" method="POST" class="inline">
+                                                <form action="{{ route('admin.bookings.cancel', $slot['id']) }}" method="POST" data-delete="true" class="inline">
                                                     @csrf
                                                     @method('DELETE')
                                                     <button type="submit" 
-                                                            class="bg-red-500 hover:bg-red-600 text-white px-2 py-1 rounded text-xs"
-                                                            onclick="return confirm('Batalkan peminjaman ini?')">
+                                                            data-confirm="Batalkan peminjaman ini?"
+                                                            class="bg-red-500 hover:bg-red-600 text-white px-2 py-1 rounded text-xs">
                                                         Batalkan
                                                     </button>
                                                 </form>
@@ -113,11 +113,11 @@
                                             
                                             <!-- Mobile action buttons -->
                                             <div class="mt-2 flex space-x-1">
-                                                <form action="{{ route('admin.bookings.approve', $slot['id']) }}" method="POST" class="inline">
+                                                <form action="{{ route('admin.bookings.approve', $slot['id']) }}" method="POST" data-ajax="true" class="inline">
                                                     @csrf
                                                     <button type="submit" 
-                                                            class="bg-green-500 hover:bg-green-600 text-white px-2 py-1 rounded text-xs"
-                                                            onclick="return confirm('Setujui peminjaman ini?')">
+                                                            data-confirm="Setujui peminjaman ini?"
+                                                            class="bg-green-500 hover:bg-green-600 text-white px-2 py-1 rounded text-xs">
                                                         Setujui
                                                     </button>
                                                 </form>
@@ -180,13 +180,13 @@
                                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
                                                     </svg>
                                                 </a>
-                                                <form action="{{ route('admin.schedules.destroy', $slot['id']) }}?from_lab_schedule=1" method="POST" class="inline">
+                                                <form action="{{ route('admin.schedules.destroy', $slot['id']) }}?from_lab_schedule=1" method="POST" data-delete="true" class="inline">
                                                     @csrf
                                                     @method('DELETE')
                                                     <button type="submit" 
+                                                            data-confirm="Hapus jadwal pakem ini?"
                                                             class="bg-red-500 hover:bg-red-600 text-white p-1 rounded text-xs"
-                                                            title="Hapus Jadwal"
-                                                            onclick="return confirm('Hapus jadwal pakem ini?')">
+                                                            title="Hapus Jadwal">
                                                         <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
                                                         </svg>
@@ -203,13 +203,13 @@
                                             
                                             <!-- Desktop action button for canceling booking -->
                                             <div class="absolute top-1 right-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                                                <form action="{{ route('admin.bookings.cancel', $slot['id']) }}" method="POST" class="inline">
+                                                <form action="{{ route('admin.bookings.cancel', $slot['id']) }}" method="POST" data-delete="true" class="inline">
                                                     @csrf
                                                     @method('DELETE')
                                                     <button type="submit" 
+                                                            data-confirm="Batalkan peminjaman ini?"
                                                             class="bg-red-500 hover:bg-red-600 text-white p-1 rounded text-xs"
-                                                            title="Batalkan Peminjaman"
-                                                            onclick="return confirm('Batalkan peminjaman ini?')">
+                                                            title="Batalkan Peminjaman">
                                                         <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
                                                         </svg>
@@ -226,12 +226,12 @@
                                             
                                             <!-- Desktop action buttons for approve/reject -->
                                             <div class="absolute top-1 right-1 opacity-0 group-hover:opacity-100 transition-opacity flex space-x-1">
-                                                <form action="{{ route('admin.bookings.approve', $slot['id']) }}" method="POST" class="inline">
+                                                <form action="{{ route('admin.bookings.approve', $slot['id']) }}" method="POST" data-ajax="true" class="inline">
                                                     @csrf
                                                     <button type="submit" 
+                                                            data-confirm="Setujui peminjaman ini?"
                                                             class="bg-green-500 hover:bg-green-600 text-white p-1 rounded text-xs"
-                                                            title="Setujui Peminjaman"
-                                                            onclick="return confirm('Setujui peminjaman ini?')">
+                                                            title="Setujui Peminjaman">
                                                         <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
                                                         </svg>
@@ -267,7 +267,7 @@
         <div class="relative bg-white rounded-lg shadow-lg w-full max-w-md mx-auto">
             <div class="p-6">
                 <h3 class="text-lg font-medium text-gray-900 mb-4">Tolak Peminjaman</h3>
-                <form id="rejectForm" method="POST">
+                <form id="rejectForm" method="POST" data-modal="true">
                     @csrf
                     <div class="mb-4">
                         <label for="notes" class="block text-sm font-medium text-gray-700 mb-2">

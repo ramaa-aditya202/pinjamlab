@@ -1,33 +1,45 @@
-import './bootstrap';
-
-import Alpine from 'alpinejs';
-
-window.Alpine = Alpine;
-
-Alpine.start();
-
-// Setup AJAX for all forms and buttons
+// Standalone AJAX Handler - For use without build process
 document.addEventListener('DOMContentLoaded', function() {
+    console.log('AJAX Handler loaded');
+    setupAjaxHandlers();
+});
+
+function setupAjaxHandlers() {
     setupAjaxForms();
     setupAjaxButtons();
     setupDeleteButtons();
     setupModalForms();
-});
-
-// Setup CSRF token for all AJAX requests
-if (window.axios) {
-    window.axios.defaults.headers.common['X-CSRF-TOKEN'] = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
 }
 
 // Show success/error messages
 function showMessage(message, type = 'success') {
+    // Remove any existing messages
+    const existingMessage = document.querySelector('.ajax-message');
+    if (existingMessage) {
+        existingMessage.remove();
+    }
+    
     const alertDiv = document.createElement('div');
-    alertDiv.className = `fixed top-4 right-4 z-50 px-6 py-3 rounded-lg shadow-lg text-white ${type === 'success' ? 'bg-green-500' : 'bg-red-500'}`;
+    alertDiv.className = `ajax-message fixed top-4 right-4 z-50 px-6 py-3 rounded-lg shadow-lg text-white ${type === 'success' ? 'bg-green-500' : 'bg-red-500'}`;
     alertDiv.textContent = message;
     document.body.appendChild(alertDiv);
     
+    // Fade in animation
+    alertDiv.style.opacity = '0';
+    alertDiv.style.transform = 'translateX(100%)';
     setTimeout(() => {
-        alertDiv.remove();
+        alertDiv.style.transition = 'all 0.3s ease';
+        alertDiv.style.opacity = '1';
+        alertDiv.style.transform = 'translateX(0)';
+    }, 10);
+    
+    // Auto remove
+    setTimeout(() => {
+        alertDiv.style.opacity = '0';
+        alertDiv.style.transform = 'translateX(100%)';
+        setTimeout(() => {
+            alertDiv.remove();
+        }, 300);
     }, 5000);
 }
 
@@ -115,6 +127,7 @@ async function handleFormSubmit(e) {
                             showFieldError(input, data.errors[field][0]);
                         }
                     });
+                    showMessage('Please correct the errors below', 'error');
                 } else {
                     showMessage(data.message || 'An error occurred', 'error');
                 }
@@ -194,6 +207,8 @@ async function handleDeleteClick(e) {
     
     // Disable button to prevent multiple submissions
     button.disabled = true;
+    const originalText = button.textContent;
+    button.textContent = 'Deleting...';
     
     try {
         const response = await fetch(form.action, {
@@ -233,6 +248,7 @@ async function handleDeleteClick(e) {
         showMessage('Network error occurred', 'error');
     } finally {
         button.disabled = false;
+        button.textContent = originalText;
     }
 }
 
@@ -291,6 +307,7 @@ async function handleModalFormSubmit(e) {
                             showFieldError(input, data.errors[field][0]);
                         }
                     });
+                    showMessage('Please correct the errors below', 'error');
                 } else {
                     showMessage(data.message || 'An error occurred', 'error');
                 }
@@ -324,14 +341,15 @@ function showFieldError(input, message) {
     // Insert after input
     input.parentNode.insertBefore(errorDiv, input.nextSibling);
     
-    // Remove error after 5 seconds
+    // Remove error after 10 seconds
     setTimeout(() => {
         input.classList.remove('border-red-500');
         if (errorDiv.parentNode) {
             errorDiv.remove();
         }
-    }, 5000);
+    }, 10000);
 }
 
 // Export functions for global use
 window.showMessage = showMessage;
+window.setupAjaxHandlers = setupAjaxHandlers;

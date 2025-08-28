@@ -13,6 +13,22 @@
 
     <!-- Scripts -->
     @vite(['resources/css/app.css', 'resources/js/app.js'])
+    
+    <!-- Fallback AJAX Handler (if Vite fails) -->
+    <script>
+        // Check if Vite loaded successfully, if not load fallback
+        document.addEventListener('DOMContentLoaded', function() {
+            // Wait a bit to see if Vite loaded the handlers
+            setTimeout(function() {
+                if (typeof setupAjaxHandlers === 'undefined') {
+                    console.log('Loading fallback AJAX handler...');
+                    const script = document.createElement('script');
+                    script.src = '{{ asset('js/ajax-handler.js') }}';
+                    document.head.appendChild(script);
+                }
+            }, 100);
+        });
+    </script>
 </head>
 <body class="font-sans antialiased bg-gray-50">
     <div class="min-h-screen" x-data="{ mobileMenuOpen: false }">

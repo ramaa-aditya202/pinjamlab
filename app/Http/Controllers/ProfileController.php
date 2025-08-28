@@ -34,6 +34,14 @@ class ProfileController extends Controller
 
         $request->user()->save();
 
+        if ($request->expectsJson() || $request->ajax()) {
+            return response()->json([
+                'success' => true,
+                'message' => 'Profile updated successfully',
+                'reload' => true
+            ]);
+        }
+
         return Redirect::route('profile.edit')->with('status', 'profile-updated');
     }
 
@@ -54,6 +62,14 @@ class ProfileController extends Controller
 
         $request->session()->invalidate();
         $request->session()->regenerateToken();
+
+        if ($request->expectsJson() || $request->ajax()) {
+            return response()->json([
+                'success' => true,
+                'message' => 'Account deleted successfully',
+                'redirect' => '/'
+            ]);
+        }
 
         return Redirect::to('/');
     }
