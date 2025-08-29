@@ -1,0 +1,308 @@
+{
+  "name": "Notif Pinjam Lab",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "bookinglab",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        0,
+        0
+      ],
+      "id": "27219f8f-5640-40ba-bc54-db82a9973be9",
+      "name": "Webhook",
+      "webhookId": "ea612f8a-6837-4c7a-88c6-ae53f682f924"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict"
+          },
+          "conditions": [
+            {
+              "id": "a1234567-b890-1234-c567-d89012345678",
+              "leftValue": "={{ $json.body.event_type }}",
+              "rightValue": "booking_created",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "name": "filter.operator.equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [
+        208,
+        0
+      ],
+      "id": "a1234567-b890-1234-c567-d89012345678",
+      "name": "Check Event Type"
+    },
+    {
+      "parameters": {
+        "chatId": "-4846058783",
+        "text": "={{ $json.body.message }}",
+        "additionalFields": {
+          "replyMarkup": "inlineKeyboard",
+          "inlineKeyboard": {
+            "rows": [
+              {
+                "row": {
+                  "buttons": [
+                    {
+                      "text": "✅ Setujui",
+                      "callbackData": "approve_{{ $json.body.booking_id }}"
+                    },
+                    {
+                      "text": "❌ Tolak",
+                      "callbackData": "reject_{{ $json.body.booking_id }}"
+                    }
+                  ]
+                }
+              }
+            ]
+          }
+        }
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        416,
+        -80
+      ],
+      "id": "0bea5d65-1b6f-474e-8eba-ad39c4cb7a9c",
+      "name": "Send Booking Request",
+      "webhookId": "dde20c49-06a6-4042-baa2-d886fc46ca37",
+      "credentials": {
+        "telegramApi": {
+          "id": "rHvUngHMdmtkNYbd",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "chatId": "-4846058783",
+        "text": "={{ $json.body.message }}",
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        416,
+        80
+      ],
+      "id": "status-update-msg",
+      "name": "Send Status Update",
+      "webhookId": "status-update-webhook",
+      "credentials": {
+        "telegramApi": {
+          "id": "rHvUngHMdmtkNYbd",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "telegram-callback",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        624,
+        0
+      ],
+      "id": "telegram-callback-webhook",
+      "name": "Telegram Callback",
+      "webhookId": "telegram-callback-webhook-id"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "callback-parse-1",
+              "name": "action",
+              "value": "={{ $json.body.callback_query.data.split('_')[0] }}",
+              "type": "string"
+            },
+            {
+              "id": "callback-parse-2", 
+              "name": "booking_id",
+              "value": "={{ $json.body.callback_query.data.split('_')[1] }}",
+              "type": "string"
+            },
+            {
+              "id": "callback-parse-3",
+              "name": "callback_query_id",
+              "value": "={{ $json.body.callback_query.id }}",
+              "type": "string"
+            },
+            {
+              "id": "callback-parse-4",
+              "name": "user_id",
+              "value": "={{ $json.body.callback_query.from.id }}",
+              "type": "string"
+            },
+            {
+              "id": "callback-parse-5",
+              "name": "chat_id",
+              "value": "={{ $json.body.callback_query.message.chat.id }}",
+              "type": "string"
+            },
+            {
+              "id": "callback-parse-6",
+              "name": "message_id",
+              "value": "={{ $json.body.callback_query.message.message_id }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        832,
+        0
+      ],
+      "id": "callback-parser",
+      "name": "Parse Callback"
+    },
+    {
+      "parameters": {
+        "url": "={{ $env.LARAVEL_APP_URL }}/api/telegram/booking-action",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "name": "X-Telegram-Token",
+              "value": "={{ $env.TELEGRAM_WEBHOOK_TOKEN }}"
+            }
+          ]
+        },
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "action",
+              "value": "={{ $json.action }}"
+            },
+            {
+              "name": "booking_id", 
+              "value": "={{ $json.booking_id }}"
+            },
+            {
+              "name": "callback_query_id",
+              "value": "={{ $json.callback_query_id }}"
+            },
+            {
+              "name": "user_id",
+              "value": "={{ $json.user_id }}"
+            },
+            {
+              "name": "chat_id",
+              "value": "={{ $json.chat_id }}"
+            },
+            {
+              "name": "message_id",
+              "value": "={{ $json.message_id }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1040,
+        0
+      ],
+      "id": "laravel-api-call",
+      "name": "Call Laravel API"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Check Event Type",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check Event Type": {
+      "main": [
+        [
+          {
+            "node": "Send Booking Request",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Send Status Update",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Telegram Callback": {
+      "main": [
+        [
+          {
+            "node": "Parse Callback",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Parse Callback": {
+      "main": [
+        [
+          {
+            "node": "Call Laravel API",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "2154dd62-d86c-459e-9aa1-100ed9fe5127",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "cfcdfa897f2d1f18523deaad38f7ae64bf4105533575d5afb0f9c0c3e2513cbc"
+  },
+  "id": "EgzlAttdXPs9NFkV",
+  "tags": []
+}

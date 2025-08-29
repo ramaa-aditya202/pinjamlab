@@ -4,6 +4,7 @@ use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\GuruController;
 use App\Http\Controllers\WebhookController;
+use App\Http\Controllers\TelegramController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -13,6 +14,10 @@ Route::get('/', function () {
 // Webhook route untuk n8n (tidak perlu auth)
 Route::post('/webhook/n8n/booking-notification', [WebhookController::class, 'bookingNotification'])
     ->name('webhook.booking.notification');
+
+// API route untuk Telegram callback (tidak perlu auth tapi perlu token)
+Route::post('/api/telegram/booking-action', [TelegramController::class, 'handleBookingAction'])
+    ->name('api.telegram.booking-action');
 
 Route::get('/dashboard', function () {
     // Redirect berdasarkan role user

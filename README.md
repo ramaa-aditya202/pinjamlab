@@ -49,18 +49,32 @@ Guru2: sari@lab.com / password
 Sistem terintegrasi dengan N8N untuk mengirim notifikasi Telegram otomatis:
 
 ### 📝 Notifikasi yang Dikirim:
-- **Pengajuan baru** - Ketika guru mengajukan peminjaman
-- **Peminjaman disetujui** - Ketika admin approve
-- **Peminjaman ditolak** - Ketika admin reject dengan alasan
+- **Pengajuan baru** - Ketika guru mengajukan peminjaman (dengan tombol Setujui/Tolak)
+- **Peminjaman disetujui** - Ketika admin approve melalui web atau Telegram
+- **Peminjaman ditolak** - Ketika admin reject dengan alasan melalui web atau Telegram
+
+### ⭐ **FITUR BARU: Telegram Bot dengan Tombol Interaktif**
+Admin sekarang bisa **menyetujui atau menolak** pengajuan langsung dari Telegram tanpa membuka dashboard!
+
+**Cara Kerja:**
+1. Guru mengajukan peminjaman → Pesan muncul di grup Telegram admin
+2. Admin klik tombol **✅ Setujui** atau **❌ Tolak** langsung di Telegram  
+3. Status otomatis terupdate di database dan pesan Telegram
+4. Guru mendapat notifikasi status di dashboard
 
 ### ⚡ Setup Integrasi:
 1. [**Panduan Instalasi Lengkap**](INSTALLATION_GUIDE.md)
 2. [**Setup N8N & Telegram**](N8N_TELEGRAM_SETUP.md) 
-3. [**Testing Guide**](TESTING_GUIDE.md)
+3. [**Implementasi Telegram Bot**](TELEGRAM_INTEGRATION.md) ⭐ **BARU**
+4. [**Testing Guide**](TESTING_GUIDE.md)
 
 ### 🧪 Quick Test:
 ```bash
+# Test notifikasi biasa
 php artisan test:booking-notification
+
+# Test Telegram dengan tombol (BARU)
+php artisan test:telegram-integration
 ```
 
 ## 🗄️ Database Schema
