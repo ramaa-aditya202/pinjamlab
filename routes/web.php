@@ -15,10 +15,6 @@ Route::get('/', function () {
 Route::post('/webhook/n8n/booking-notification', [WebhookController::class, 'bookingNotification'])
     ->name('webhook.booking.notification');
 
-// API route untuk Telegram callback (tidak perlu auth tapi perlu token)
-Route::post('/api/telegram/booking-action', [TelegramController::class, 'handleBookingAction'])
-    ->name('api.telegram.booking-action');
-
 Route::get('/dashboard', function () {
     // Redirect berdasarkan role user
     if (auth()->user()->isAdmin()) {
